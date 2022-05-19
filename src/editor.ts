@@ -57,6 +57,32 @@ export class BoilerplateCardEditor extends ScopedRegistryHost(LitElement) implem
     return this._config?.show_error || false;
   }
 
+  protected async firstUpdated(): Promise<void> {
+    this.loadEntityPicker();
+  }
+
+  async loadEntityPicker() {
+    // Get the local customElement registry
+    const registry = (this.shadowRoot as any)?.customElements;
+    if (!registry) return;
+
+    // Check if the element we want is already defined in the local scope
+    if (registry.get("ha-entity-picker")) return;
+
+    // Load in ha-entity-picker
+    // This part will differ for every element you want
+    const ch = await (window as any).loadCardHelpers();
+    const c = await ch.createCardElement({ type: "entities", entities: [] });
+    await c.constructor.getConfigElement();
+
+    // Since ha-elements are not using scopedRegistry we can get a reference to
+    // the newly loaded element from the global customElement registry...
+    const haEntityPicker = window.customElements.get("ha-entity-picker");
+
+    // ... and use that reference to register the same element in the local registry
+    registry.define("ha-entity-picker", haEntityPicker);
+  }
+
   protected render(): TemplateResult | void {
     if (!this.hass || !this._helpers) {
       return html``;
@@ -65,39 +91,33 @@ export class BoilerplateCardEditor extends ScopedRegistryHost(LitElement) implem
     // You can restrict on domain type
     const entities = Object.keys(this.hass.states);
 
+    //   <mwc-select
+    //   naturalMenuWidth
+    //   fixedMenuPosition
+    //   label="Entity (Required)"
+    //   .configValue=${'entity'}
+    //   .value=${this._entity}
+    //   @selected=${this._valueChanged}
+    //   @closed=${(ev) => ev.stopPropagation()}
+    // >
+    //   ${entities.map((entity) => {
+    //     return html`<mwc-list-item .value=${entity}>${entity}</mwc-list-item>`;
+    //   })}
+    // </mwc-select>
+
     return html`
-      <mwc-select
-        naturalMenuWidth
-        fixedMenuPosition
-        label="Entity (Required)"
-        .configValue=${'entity'}
-        .value=${this._entity}
-        @selected=${this._valueChanged}
-        @closed=${(ev) => ev.stopPropagation()}
-      >
-        ${entities.map((entity) => {
-          return html`<mwc-list-item .value=${entity}>${entity}</mwc-list-item>`;
-        })}
-      </mwc-select>
-      <mwc-textfield
-        label="Name (Optional)"
-        .value=${this._name}
-        .configValue=${'name'}
-        @input=${this._valueChanged}
-      ></mwc-textfield>
-      <mwc-formfield .label=${`Toggle warning ${this._show_warning ? 'off' : 'on'}`}>
-        <mwc-switch
-          .checked=${this._show_warning !== false}
-          .configValue=${'show_warning'}
-          @change=${this._valueChanged}
-        ></mwc-switch>
+      <ha-entity-picker .hass=${this.hass} .configValue=${'entity'} .value=${this._entity} name="entity"
+        label="Entity Current Conditions (Required)" hideClearIcon allowCustomEntity @value-changed=${this._valueChanged}>
+      </ha-entity-picker>
+      <mwc-textfield label="Name (Optional)" .value=${this._name} .configValue=${'name'} @input=${this._valueChanged}>
+      </mwc-textfield>
+      <mwc-formfield .label=${`Toggle warning ${this._show_warning ? 'off' : 'on' }`}>
+        <mwc-switch .checked=${this._show_warning !==false} .configValue=${'show_warning'} @change=${this._valueChanged}>
+        </mwc-switch>
       </mwc-formfield>
-      <mwc-formfield .label=${`Toggle error ${this._show_error ? 'off' : 'on'}`}>
-        <mwc-switch
-          .checked=${this._show_error !== false}
-          .configValue=${'show_error'}
-          @change=${this._valueChanged}
-        ></mwc-switch>
+      <mwc-formfield .label=${`Toggle error ${this._show_error ? 'off' : 'on' }`}>
+        <mwc-switch .checked=${this._show_error !==false} .configValue=${'show_error'} @change=${this._valueChanged}>
+        </mwc-switch>
       </mwc-formfield>
     `;
   }
