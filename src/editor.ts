@@ -45,8 +45,12 @@ export class BoilerplateCardEditor extends ScopedRegistryHost(LitElement) implem
     return this._config?.name || '';
   }
 
-  get _my_entity(): string {
-    return this._config?.my_entity || '';
+  get _picker_entity(): string {
+    return this._config?.picker_entity || '';
+  }
+
+  get _entity(): string {
+    return this._config?.entity || '';
   }
 
   get _show_warning(): boolean {
@@ -91,26 +95,25 @@ export class BoilerplateCardEditor extends ScopedRegistryHost(LitElement) implem
     console.info('render');
 
     // You can restrict on domain type
-    //    const entities = Object.keys(this.hass.states);
-
-    //   <mwc-select
-    //   naturalMenuWidth
-    //   fixedMenuPosition
-    //   label="Entity (Required)"
-    //   .configValue=${'entity'}
-    //   .value=${this._entity}
-    //   @selected=${this._valueChanged}
-    //   @closed=${(ev) => ev.stopPropagation()}
-    // >
-    //   ${entities.map((entity) => {
-    //     return html`<mwc-list-item .value=${entity}>${entity}</mwc-list-item>`;
-    //   })}
-    // </mwc-select>
+    const entities = Object.keys(this.hass.states);
 
     return html`
-      <ha-entity-picker .hass=${this.hass} .configValue=${'my_entity'} .value=${this._my_entity} name="MyEntity"
+      <ha-entity-picker .hass=${this.hass} .configValue=${'picker_entity'} .value=${this._picker_entity} name="PickerEntity"
         label="Entity Current Conditions (Required)" allow-custom-entity @value-changed=${this._valueChangedPicker}>
       </ha-entity-picker>
+      <mwc-select
+        naturalMenuWidth
+        fixedMenuPosition
+        label="Entity (Required)"
+        .configValue=${'entity'}
+        .value=${this._entity}
+        @selected=${this._valueChanged}
+        @closed=${(ev) => ev.stopPropagation()}
+      >
+        ${entities.map((entity) => {
+          return html`<mwc-list-item .value=${entity}>${entity}</mwc-list-item>`;
+        })}
+      </mwc-select>
       <mwc-textfield label="Name (Optional)" .value=${this._name} .configValue=${'name'} @input=${this._valueChanged}>
       </mwc-textfield>
       <mwc-formfield .label=${`Toggle warning ${this._show_warning ? 'off' : 'on'}`}>

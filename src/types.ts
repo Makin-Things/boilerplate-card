@@ -14,7 +14,8 @@ export interface BoilerplateCardConfig extends LovelaceCardConfig {
   show_warning?: boolean;
   show_error?: boolean;
   test_gui?: boolean;
-  my_entity?: string;
+  entity?: string;
+  picker_entity?: string;
   tap_action?: ActionConfig;
   hold_action?: ActionConfig;
   double_tap_action?: ActionConfig;
