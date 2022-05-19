@@ -21,8 +21,8 @@ export default {
     json(),
     babel({
       exclude: 'node_modules/**',
+      compact: false,
     }),
-    terser(),
     serve({
       contentBase: './dist',
       host: '0.0.0.0',

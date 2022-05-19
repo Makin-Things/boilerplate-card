@@ -27,7 +27,11 @@ const plugins = [
   commonjs(),
   typescript(),
   json(),
-  babel({
+  dev && babel({
+    exclude: 'node_modules/**',
+    compact: false,
+  }),
+  !dev && babel({
     exclude: 'node_modules/**',
   }),
   dev && serve(serveopts),

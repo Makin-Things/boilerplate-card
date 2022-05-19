@@ -45,8 +45,8 @@ export class BoilerplateCardEditor extends ScopedRegistryHost(LitElement) implem
     return this._config?.name || '';
   }
 
-  get _entity(): string {
-    return this._config?.entity || '';
+  get _my_entity(): string {
+    return this._config?.my_entity || '';
   }
 
   get _show_warning(): boolean {
@@ -61,7 +61,7 @@ export class BoilerplateCardEditor extends ScopedRegistryHost(LitElement) implem
     this.loadEntityPicker();
   }
 
-  async loadEntityPicker() {
+  async loadEntityPicker(): Promise<void> {
     // Get the local customElement registry
     const registry = (this.shadowRoot as any)?.customElements;
     if (!registry) return;
@@ -88,8 +88,10 @@ export class BoilerplateCardEditor extends ScopedRegistryHost(LitElement) implem
       return html``;
     }
 
+    console.info('render');
+
     // You can restrict on domain type
-    const entities = Object.keys(this.hass.states);
+    //    const entities = Object.keys(this.hass.states);
 
     //   <mwc-select
     //   naturalMenuWidth
@@ -106,17 +108,17 @@ export class BoilerplateCardEditor extends ScopedRegistryHost(LitElement) implem
     // </mwc-select>
 
     return html`
-      <ha-entity-picker .hass=${this.hass} .configValue=${'entity'} .value=${this._entity} name="entity"
-        label="Entity Current Conditions (Required)" hideClearIcon allowCustomEntity @value-changed=${this._valueChanged}>
+      <ha-entity-picker .hass=${this.hass} .configValue=${'my_entity'} .value=${this._my_entity} name="MyEntity"
+        label="Entity Current Conditions (Required)" allow-custom-entity @value-changed=${this._valueChangedPicker}>
       </ha-entity-picker>
       <mwc-textfield label="Name (Optional)" .value=${this._name} .configValue=${'name'} @input=${this._valueChanged}>
       </mwc-textfield>
-      <mwc-formfield .label=${`Toggle warning ${this._show_warning ? 'off' : 'on' }`}>
-        <mwc-switch .checked=${this._show_warning !==false} .configValue=${'show_warning'} @change=${this._valueChanged}>
+      <mwc-formfield .label=${`Toggle warning ${this._show_warning ? 'off' : 'on'}`}>
+        <mwc-switch .checked=${this._show_warning !== false} .configValue=${'show_warning'} @change=${this._valueChanged}>
         </mwc-switch>
       </mwc-formfield>
-      <mwc-formfield .label=${`Toggle error ${this._show_error ? 'off' : 'on' }`}>
-        <mwc-switch .checked=${this._show_error !==false} .configValue=${'show_error'} @change=${this._valueChanged}>
+      <mwc-formfield .label=${`Toggle error ${this._show_error ? 'off' : 'on'}`}>
+        <mwc-switch .checked=${this._show_error !== false} .configValue=${'show_error'} @change=${this._valueChanged}>
         </mwc-switch>
       </mwc-formfield>
     `;
@@ -131,6 +133,23 @@ export class BoilerplateCardEditor extends ScopedRegistryHost(LitElement) implem
 
   private async loadCardHelpers(): Promise<void> {
     this._helpers = await (window as any).loadCardHelpers();
+  }
+
+  private _valueChangedPicker(ev): void {
+    if (!this._config || !this.hass) {
+      return;
+    }
+    const target = ev.target;
+    if (this[`_${target.configValue}`] === target.value) {
+      return;
+    }
+    if (target.configValue) {
+      this._config = {
+        ...this._config,
+        [target.configValue]: target.value,
+      };
+    }
+    fireEvent(this, 'config-changed', { config: this._config });
   }
 
   private _valueChanged(ev): void {
