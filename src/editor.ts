@@ -114,14 +114,24 @@ export class BoilerplateCardEditor extends ScopedRegistryHost(LitElement) implem
           return html`<mwc-list-item .value=${entity}>${entity}</mwc-list-item>`;
         })}
       </mwc-select>
-      <mwc-textfield label="Name (Optional)" .value=${this._name} .configValue=${'name'} @input=${this._valueChanged}>
+      <mwc-textfield
+        label="Name (Optional)"
+        .value=${this._name}
+        .configValue=${'name'}
+        @input=${this._valueChanged}>
       </mwc-textfield>
       <mwc-formfield .label=${`Toggle warning ${this._show_warning ? 'off' : 'on'}`}>
-        <mwc-switch .checked=${this._show_warning !== false} .configValue=${'show_warning'} @change=${this._valueChanged}>
+        <mwc-switch
+          .checked=${this._show_warning !== false}
+          .configValue=${'show_warning'}
+          @change=${this._valueChanged}>
         </mwc-switch>
       </mwc-formfield>
       <mwc-formfield .label=${`Toggle error ${this._show_error ? 'off' : 'on'}`}>
-        <mwc-switch .checked=${this._show_error !== false} .configValue=${'show_error'} @change=${this._valueChanged}>
+        <mwc-switch
+          .checked=${this._show_error !== false}
+          .configValue=${'show_error'}
+          @change=${this._valueChanged}>
         </mwc-switch>
       </mwc-formfield>
     `;
